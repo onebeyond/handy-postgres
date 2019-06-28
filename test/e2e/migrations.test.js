@@ -58,7 +58,7 @@ describe('Handy pg migrations', () => {
     });
   });
 
-  it.skip('Uses migration credentials if supplied', (done) => {
+  it('Uses migration credentials if supplied', (done) => {
     const migratingPg = createPostgres({ configPath: 'withMigrationsCredentials' });
     migratingPg.start(config, (err, pg) => {
       if (err) return done(err);

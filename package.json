@@ -8,7 +8,7 @@
     "lint": "eslint .",
     "vuln": "nsp check",
     "docker": "docker-compose --file docker-compose.yml pull && docker-compose --file docker-compose.yml up -d --force-recreate",
-    "precommit": "npm run lint && npm run vuln",
+    "precommit": "npm run lint",
     "prepush": "npm run docker && sleep 5 && npm run test"
   },
   "author": "",
