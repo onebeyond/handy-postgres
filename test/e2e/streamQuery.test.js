@@ -33,25 +33,20 @@ describe('Handy pg stream query', () => {
   let withTransaction;
   let query;
 
-  before((done) => {
-    pgComponent.start(config, (err, api) => {
-      if (err) return done(err);
-      streamQuery = api.streamQuery;
-      query = api.query;
-      formattedQuery = api.formattedQuery;
-      formattedStreamQuery = api.formattedStreamQuery;
-      withTransaction = api.withTransaction;
-      return done();
-    });
+  before(async () => {
+    const api = await pgComponent.start(config);
+    streamQuery = api.streamQuery;
+    query = api.query;
+    formattedQuery = api.formattedQuery;
+    formattedStreamQuery = api.formattedStreamQuery;
+    withTransaction = api.withTransaction;
   });
 
   beforeEach(() =>
     formattedQuery('drop-films')
       .then(() => formattedQuery('create-films')));
 
-  after(() =>
-      Promise.resolve()
-        .then(() => pgComponent.stop()));
+  after(() => pgComponent.stop());
 
   it('executes a raw query', () =>
      streamQuery('SELECT 5 AS value')

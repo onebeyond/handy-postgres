@@ -24,25 +24,19 @@ describe('Handy pg transactions test', () => {
   const rt = { code: 'royal', title: 'The Royal Tenenbaums', dateProd: new Date('2002-01-04'), kind: 'comedy', len: 110 };
   const lb = { code: 'corey', title: 'The Lost Boys', dateProd: new Date('1987-07-31'), kind: 'drama', len: 97 };
 
-  before((done) => {
-    pgComponent.start(config, (err, api) => {
-      if (err) return done(err);
-      withTransaction = api.withTransaction;
-      formattedQuery = api.formattedQuery;
-      return done();
-    });
+  before(async () => {
+    const api = await pgComponent.start(config);
+    withTransaction = api.withTransaction;
+    formattedQuery = api.formattedQuery;
+    await formattedQuery('drop-films');
+    await formattedQuery('create-films');
   });
-
-  before(() =>
-    formattedQuery('drop-films')
-      .then(() => formattedQuery('create-films')));
 
   beforeEach(() => formattedQuery('truncate-films'));
 
-  after((done) => {
-    formattedQuery('drop-films')
-      .then(() => pgComponent.stop(done))
-      .catch(done);
+  after(async () => {
+    await formattedQuery('drop-films');
+    await pgComponent.stop();
   });
 
   it('inserts a record inside a transaction', () =>

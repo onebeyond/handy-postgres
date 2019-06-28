@@ -43,32 +43,32 @@ const config = {
 };
 
 describe('Handy Postgres config test', () => {
-  it('connects to other keys', (done) => {
+  it('connects to other keys', () => {
     const pgComponent = createPostgres({ configPath: 'pgAlternate' });
-    pgComponent.start(config, done);
+    return pgComponent.start(config);
   });
 
-  it('connects to nested keys', (done) => {
+  it('connects to nested keys', () => {
     const pgComponent = createPostgres({ configPath: 'nested.pg' });
-    pgComponent.start(config, done);
+    return pgComponent.start(config);
   });
 
-  it('fails if key doesnt exist', (done) => {
+  it('fails if key doesnt exist', () => {
     const pgComponent = createPostgres({ configPath: 'invalid' });
-    pgComponent.start(config, (err) => {
+    return pgComponent.start(config)
+    .catch((err) => {
       expect(err.message).to.be('Unable to create connection pool, check your configuration.');
-      done();
     });
   });
 
-  it('connects to a default config', (done) => {
+  it('connects to a default config', () => {
     const pgComponent = createPostgres({});
-    pgComponent.start(config, done);
+    return pgComponent.start(config);
   });
 
-  it('connects to a specific host', (done) => {
+  it('connects to a specific host', () => {
     const pgComponent = createPostgres({ configPath: 'pgHost' });
-    pgComponent.start(config, done);
+    return pgComponent.start(config);
   });
 });
 

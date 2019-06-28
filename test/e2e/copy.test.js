@@ -19,24 +19,17 @@ describe('Handy pg copy test', () => {
   const pgComponent = createPostgres({ configPath: 'withSql' });
   let pg;
 
-  before((done) => {
-    pgComponent.start(config, (err, api) => {
-      if (err) return done(err);
-      pg = api;
-      return done();
-    });
+  before(async () => {
+    pg = await pgComponent.start(config);
+    await pg.formattedQuery('drop-films');
+    await pg.formattedQuery('create-films');
   });
-
-  before(() =>
-    pg.formattedQuery('drop-films')
-      .then(() => pg.formattedQuery('create-films')));
 
   beforeEach(() => pg.formattedQuery('truncate-films'));
 
-  after((done) => {
-    pg.formattedQuery('drop-films')
-      .then(() => pgComponent.stop(done))
-      .catch(done);
+  after(async () => {
+    await pg.formattedQuery('drop-films');
+    await pgComponent.stop();
   });
 
   it('copies from read stream to table', () => {

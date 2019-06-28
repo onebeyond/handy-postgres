@@ -24,29 +24,23 @@ describe('Handy pg query test', () => {
   let explain;
   let formattedExplain;
 
-  before((done) => {
-    pgComponent.start(config, (err, api) => {
-      if (err) return done(err);
-      formattedQuery = api.formattedQuery;
-      query = api.query;
-      insert = api.insert;
-      update = api.update;
-      explain = api.explain;
-      formattedExplain = api.formattedExplain;
-      return done();
-    });
+  before(async () => {
+    const api = await pgComponent.start(config);
+    formattedQuery = api.formattedQuery;
+    query = api.query;
+    insert = api.insert;
+    update = api.update;
+    explain = api.explain;
+    formattedExplain = api.formattedExplain;
+    await formattedQuery('drop-films');
+    await formattedQuery('create-films');
   });
-
-  before(() =>
-    formattedQuery('drop-films')
-      .then(() => formattedQuery('create-films')));
 
   beforeEach(() => formattedQuery('truncate-films'));
 
-  after((done) => {
-    formattedQuery('drop-films')
-      .then(() => pgComponent.stop(done))
-      .catch(done);
+  after(async () => {
+    await formattedQuery('drop-films');
+    await pgComponent.stop();
   });
 
   it('executes a raw query', () =>

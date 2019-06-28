@@ -18,7 +18,7 @@ const Pg = ({ pg = require('pg'), configPath = 'pg', logger = console }) => {
     return initPool(logger)(pg, config);
   };
 
-  const start = (config, next) =>
+  const start = (config) =>
     Promise.resolve()
       .then(() => {
         const pickedConfig = dotPath(configPath, config);
@@ -35,18 +35,14 @@ const Pg = ({ pg = require('pg'), configPath = 'pg', logger = console }) => {
             return null;
           });
       })
-      .then(() => next(null, api))
-      .catch(next);
+      .then(() => api);
 
-  const stop = (next) => {
-    if (!pool) return next();
-    return pool.end()
-    .then(next)
-    .catch(next);
+  const stop = () => {
+    if (!pool) return Promise.resolve();
+    return pool.end();
   };
 
   return {
-    dependsOn: ['config'],
     start,
     stop,
   };

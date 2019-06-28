@@ -26,32 +26,26 @@ describe('Handy pg query test for schemas', () => {
   let copyFrom;
   let copyTo;
 
-  before((done) => {
-    pgComponent.start(config, (err, api) => {
-      if (err) return done(err);
-      const schemaApi = api.schema('test_schema');
-      formattedQuery = schemaApi.formattedQuery;
-      query = schemaApi.query;
-      insert = schemaApi.insert;
-      update = schemaApi.update;
-      withTransaction = schemaApi.withTransaction;
-      copyFrom = schemaApi.copyFrom;
-      copyTo = schemaApi.copyTo;
-      return done();
-    });
+  before(async () => {
+    const api = await pgComponent.start(config);
+    const schemaApi = api.schema('test_schema');
+    formattedQuery = schemaApi.formattedQuery;
+    query = schemaApi.query;
+    insert = schemaApi.insert;
+    update = schemaApi.update;
+    withTransaction = schemaApi.withTransaction;
+    copyFrom = schemaApi.copyFrom;
+    copyTo = schemaApi.copyTo;
+    await formattedQuery('create-schema');
+    await formattedQuery('drop-films');
+    await formattedQuery('create-films');
   });
-
-  before(() =>
-    formattedQuery('create-schema')
-      .then(() => formattedQuery('drop-films'))
-      .then(() => formattedQuery('create-films')));
 
   beforeEach(() => formattedQuery('truncate-films'));
 
-  after((done) => {
-    formattedQuery('drop-films')
-      .then(() => pgComponent.stop(done))
-      .catch(done);
+  after(async () => {
+    await formattedQuery('drop-films');
+    await pgComponent.stop();
   });
 
   it('executes a raw query', () =>
