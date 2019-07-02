@@ -46,6 +46,7 @@ After creating a Handy PG component, the following methods will be available:
 | Property  | Description | Promise result |
 | ------------- | ------------- | ----------- |
 | withTransaction | Begin a new named transaction `pg.withTransaction(next)` | `(connection) => {}` |
+| withConnection | Claims a connection from the pool `pg.withConnection(next)` |
 | query | Execute an unformatted query using shorthands `SELECT $1::INT AS number` defaulting to a raw query if it cannot find one | `(result) => {}` |
 | streamQuery | Same as `query`, but returns a stream ('data', 'error', 'end'). Multiple queries not possible (throws error). | `(stream) => {}` |
 | formattedQuery | Execute a formatted query using shorthands `SELECT %L::INT AS %I` | `(result) => {}` |
