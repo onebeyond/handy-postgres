@@ -12,8 +12,8 @@ const config = {
     port: 5432,
     max: 10,
     idleTimeoutMillis: 30000,
-    sql: ['test/fixtures/sql/schemas'],
-  },
+    sql: ['test/fixtures/sql/schemas']
+  }
 };
 
 describe('Handy pg query test for schemas', () => {
@@ -50,83 +50,128 @@ describe('Handy pg query test for schemas', () => {
 
   it('executes a raw query', () =>
     query('SELECT 5 AS value')
-    .then(({ rows }) => expect(rows[0].value).to.be(5))
-    .catch((err) => expect(err).to.be(null))
-  );
+      .then(({ rows }) => expect(rows[0].value).to.be(5))
+      .catch(err => expect(err).to.be(null)));
 
   it('executes multipleStatements in a raw query', () =>
     query('SELECT 1 AS one; SELECT 2 AS two;')
-    .then(({ rows }) => {
-      expect(rows[0].one).to.be(1);
-      expect(rows[1].two).to.be(2);
-    })
-    .catch((err) => expect(err).to.be(null))
-  );
+      .then(([resultOne, resultTwo]) => {
+        expect(resultOne.rows[0].one).to.be(1);
+        expect(resultTwo.rows[0].two).to.be(2);
+      })
+      .catch(err => expect(err).to.be(null)));
 
   it('complains if an inexistent shorthand is used', () =>
-    query('inexistent-shorthand')
-    .catch((err) => expect(err.message).to.be('syntax error at or near "inexistent"'))
-  );
+    query('inexistent-shorthand').catch(err =>
+      expect(err.message).to.be('syntax error at or near "inexistent"')
+    ));
 
   it('executes parameterised query', () =>
     formattedQuery('select-formatted', [22, 'catch'])
-    .then(({ rows }) => expect(R.head(rows).catch).to.equal(22))
-    .catch((err) => expect(err).to.be(null))
-  );
+      .then(({ rows }) => expect(R.head(rows).catch).to.equal(22))
+      .catch(err => expect(err).to.be(null)));
 
   it('inserts rows using the shorthand', () => {
-    const movie = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
+    const movie = {
+      code: 'kurtz',
+      title: 'Apocalypse Now',
+      dateProd: new Date('1979-08-15'),
+      kind: 'drama',
+      len: 153
+    };
     return insert('films', movie)
-    .then(() => formattedQuery('select-all', ['films']))
-    .then(({ rows }) => expect(R.head(rows)).to.eql(movie))
-    .catch((err) => expect(err).to.be(null));
+      .then(() => formattedQuery('select-all', ['films']))
+      .then(({ rows }) => expect(R.head(rows)).to.eql(movie))
+      .catch(err => expect(err).to.be(null));
   });
 
   it('inserts inside a transaction', () => {
-    const movie = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
-    return withTransaction((tx) => tx.insert('films', movie))
-    .then(() => formattedQuery('select-all', ['films']))
-    .then(({ rows }) => expect(R.head(rows)).to.eql(movie))
-    .catch((err) => expect(err).to.be(null));
+    const movie = {
+      code: 'kurtz',
+      title: 'Apocalypse Now',
+      dateProd: new Date('1979-08-15'),
+      kind: 'drama',
+      len: 153
+    };
+    return withTransaction(tx => tx.insert('films', movie))
+      .then(() => formattedQuery('select-all', ['films']))
+      .then(({ rows }) => expect(R.head(rows)).to.eql(movie))
+      .catch(err => expect(err).to.be(null));
   });
 
   it('updates rows using the shorthand without a where clause', () => {
-    const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
-    const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
+    const movie1 = {
+      code: 'kurtz',
+      title: 'Apocalypse Now',
+      dateProd: new Date('1979-08-15'),
+      kind: 'drama',
+      len: 153
+    };
+    const movie2 = {
+      code: 'pulpf',
+      title: 'Pulp Fiction',
+      kind: 'cult',
+      dateProd: null,
+      len: 178
+    };
     return insert('films', [movie1, movie2])
-    .then(() => update('films', { kind: 'super-cool' }))
-    .then(() => formattedQuery('select-all', ['films']))
-    .then(({ rows }) => {
-      expect(rows[0]).to.eql(R.merge(movie1, { kind: 'super-cool' }));
-      expect(rows[1]).to.eql(R.merge(movie2, { kind: 'super-cool' }));
-    })
-    .catch((err) => expect(err).to.be(null));
+      .then(() => update('films', { kind: 'super-cool' }))
+      .then(() => formattedQuery('select-all', ['films']))
+      .then(({ rows }) => {
+        expect(rows[0]).to.eql(R.merge(movie1, { kind: 'super-cool' }));
+        expect(rows[1]).to.eql(R.merge(movie2, { kind: 'super-cool' }));
+      })
+      .catch(err => expect(err).to.be(null));
   });
 
   it('updates rows using the shorthand with a where clause', () => {
-    const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
-    const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
+    const movie1 = {
+      code: 'kurtz',
+      title: 'Apocalypse Now',
+      dateProd: new Date('1979-08-15'),
+      kind: 'drama',
+      len: 153
+    };
+    const movie2 = {
+      code: 'pulpf',
+      title: 'Pulp Fiction',
+      kind: 'cult',
+      dateProd: null,
+      len: 178
+    };
     return insert('films', [movie1, movie2])
-    .then(() => update('films', { kind: 'super-cool' }, { code: 'pulpf' }))
-    .then(() => formattedQuery('select-all', ['films']))
-    .then(({ rows }) => {
-      expect(rows[0]).to.eql(movie1);
-      expect(rows[1]).to.eql(R.merge(movie2, { kind: 'super-cool' }));
-    })
-    .catch((err) => expect(err).to.be(null));
+      .then(() => update('films', { kind: 'super-cool' }, { code: 'pulpf' }))
+      .then(() => formattedQuery('select-all', ['films']))
+      .then(({ rows }) => {
+        expect(rows[0]).to.eql(movie1);
+        expect(rows[1]).to.eql(R.merge(movie2, { kind: 'super-cool' }));
+      })
+      .catch(err => expect(err).to.be(null));
   });
 
   it('copies from read stream to table', () => {
-    const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
-    const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
+    const movie1 = {
+      code: 'kurtz',
+      title: 'Apocalypse Now',
+      dateProd: new Date('1979-08-15'),
+      kind: 'drama',
+      len: 153
+    };
+    const movie2 = {
+      code: 'pulpf',
+      title: 'Pulp Fiction',
+      kind: 'cult',
+      dateProd: null,
+      len: 178
+    };
     const readStream = fs.createReadStream('test/fixtures/data/films.tsv');
     return copyFrom(readStream, 'films')
-    .then(() => formattedQuery('select-all', ['films']))
-    .then(({ rows }) => {
-      expect(rows.length).to.be(2);
-      expect(rows[0]).to.eql(movie1);
-      expect(rows[1]).to.eql(movie2);
-    });
+      .then(() => formattedQuery('select-all', ['films']))
+      .then(({ rows }) => {
+        expect(rows.length).to.be(2);
+        expect(rows[0]).to.eql(movie1);
+        expect(rows[1]).to.eql(movie2);
+      });
   });
 
   it('copies to write stream from table', () => {
@@ -136,7 +181,11 @@ describe('Handy pg query test for schemas', () => {
     const readStream = fs.createReadStream(sourcePath);
     const writeStream = fs.createWriteStream(destinationPath);
     return copyFrom(readStream, 'films')
-    .then(() => copyTo(writeStream, 'films'))
-    .then(() => expect(fs.readFileSync(sourcePath)).to.eql(fs.readFileSync(destinationPath)));
+      .then(() => copyTo(writeStream, 'films'))
+      .then(() =>
+        expect(fs.readFileSync(sourcePath)).to.eql(
+          fs.readFileSync(destinationPath)
+        )
+      );
   });
 });
