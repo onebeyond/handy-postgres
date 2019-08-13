@@ -46,7 +46,8 @@ describe('Handy pg migrations', () => {
   it('initialises migrations as part of a system configuration', async () => {
     const migratingPg = createPostgres({ configPath: 'withMigrations' });
     const pg = await migratingPg.start(config);
-    await pg.query('SELECT * FROM migrations');
+    const { rows } = await pg.query('SELECT * FROM migrations');
+    expect(rows.length).to.be.greaterThan(0);
   });
 
   it('Uses migration credentials if supplied', async () => {
@@ -93,4 +94,3 @@ describe('Handy pg migrations', () => {
     await query('SELECT * FROM handy_test_migrate');
   });
 });
-
