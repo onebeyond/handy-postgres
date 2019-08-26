@@ -44,16 +44,16 @@ describe('Handy pg query test', () => {
   });
 
   it('executes a raw query', () =>
-    query('SELECT 5 AS value')
+    query('SELECT 5 AS value;')
     .then(({ rows }) => expect(rows[0].value).to.be(5))
     .catch((err) => expect(err).to.be(null))
   );
 
   it('executes multipleStatements in a raw query', () =>
     query('SELECT 1 AS one; SELECT 2 AS two;')
-    .then(({ rows }) => {
-      expect(rows[0].one).to.be(1);
-      expect(rows[1].two).to.be(2);
+    .then(([resultOne, resultTwo]) => {
+      expect(resultOne.rows[0].one).to.be(1);
+      expect(resultTwo.rows[0].two).to.be(2);
     })
     .catch((err) => expect(err).to.be(null))
   );
