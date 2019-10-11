@@ -29,7 +29,7 @@ const Pg = ({ pg = require('pg'), configPath = 'pg', logger = console }) => {
         pool = pool.getConnection ? pool : Object.assign(pool, { getConnection: () => pool.connect() });
         api = queryRunner(pool);
         return pickedConfig.migrations
-          ? console.log('lelelelele') || Promise.using(pool.getConnection(), () => {}).then(() => migrate(logger)(pickedConfig))
+          ? Promise.using(pool.getConnection(), () => {}).then(() => migrate(logger)(pickedConfig))
           : Promise.resolve();
       })
       .then(() => api);
