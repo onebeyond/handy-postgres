@@ -26,7 +26,8 @@ const Pg = ({ pg = require('pg'), configPath = 'pg', logger = console }) => {
         const isolationLevel = pickedConfig && pickedConfig.isolationLevel;
         queryRunner = createRunner(sqlPath, format, isolationLevel);
         pool = defaultPool || createPool(pickedConfig);
-        pool = pool.getConnection ? pool : Object.assign(pool, { getConnection: () => pool.connect() });
+        const promisifiedPool = Promise.promisifyAll(pool);
+        pool = pool.getConnection ? pool : Object.assign(pool, { getConnection: () => promisifiedPool.connectAsync().disposer((client) => client.release()) });
         api = queryRunner(pool);
         return pickedConfig.migrations
           ? Promise.using(pool.getConnection(), () => {}).then(() => migrate(logger)(pickedConfig))
