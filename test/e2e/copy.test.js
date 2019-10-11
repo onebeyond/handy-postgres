@@ -1,5 +1,6 @@
 const fs = require('fs');
 const expect = require('expect.js');
+const originalPg = require('pg');
 const createPostgres = require('../..');
 
 const config = {
@@ -54,5 +55,24 @@ describe('Handy pg copy test', () => {
     return pg.copyFrom(readStream, 'films')
     .then(() => pg.copyTo(writeStream, 'films'))
     .then(() => expect(fs.readFileSync(sourcePath)).to.eql(fs.readFileSync(destinationPath)));
+  });
+
+  describe('Using an external pool', () => {
+    it('copies from read stream to table', async () => {
+      const handyPostgres = createPostgres({ configPath: 'withSql' });
+      const pool = new originalPg.Pool(config.withSql);
+      const handyWrapper = await handyPostgres.start(config, pool);
+
+      const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
+      const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
+      const readStream = fs.createReadStream('test/fixtures/data/films.tsv');
+      return handyWrapper.copyFrom(readStream, 'films')
+        .then(() => handyWrapper.formattedQuery('select-all', ['films']))
+        .then(({ rows }) => {
+          expect(rows.length).to.be(2);
+          expect(rows[0]).to.eql(movie1);
+          expect(rows[1]).to.eql(movie2);
+        });
+    });
   });
 });
