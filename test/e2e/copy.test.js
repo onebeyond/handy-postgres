@@ -58,10 +58,17 @@ describe('Handy pg copy test', () => {
   });
 
   describe('Using an external pool', () => {
+    const sqlPath = config.withSql.sql;
+    const configSql = { 
+      sql: {
+        sql: sqlPath
+      },
+    };
+
     it('copies from read stream to table', async () => {
-      const handyPostgres = createPostgres({ configPath: 'withSql' });
+      const handyPostgres = createPostgres({ configPath: 'sql' });
       const pool = new originalPg.Pool(config.withSql);
-      const handyWrapper = await handyPostgres.start(config, pool);
+      const handyWrapper = await handyPostgres.start(configSql, pool);
 
       const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
       const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
