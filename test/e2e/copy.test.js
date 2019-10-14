@@ -65,11 +65,22 @@ describe('Handy pg copy test', () => {
       },
     };
 
-    it('copies from read stream to table', async () => {
-      const handyPostgres = createPostgres({ configPath: 'sql' });
-      const pool = new originalPg.Pool(config.withSql);
-      const handyPgWrapper = await handyPostgres.start(configSql, pool);
+    let handyPostgres;
+    let pool;
+    let handyPgWrapper;
 
+    before(async () => {
+      handyPostgres = createPostgres({ configPath: 'sql' });
+      pool = new originalPg.Pool(config.withSql);
+      handyPgWrapper = await handyPostgres.start(configSql, pool);
+
+      await handyPgWrapper.formattedQuery('drop-films');
+      await handyPgWrapper.formattedQuery('create-films');
+    });
+
+    beforeEach(() => handyPgWrapper.formattedQuery('truncate-films'));
+
+    it('copies from read stream to table', async () => {
       const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
       const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
       const readStream = fs.createReadStream('test/fixtures/data/films.tsv');
@@ -83,10 +94,6 @@ describe('Handy pg copy test', () => {
     });
 
     it('copies to write stream from table', async () => {
-      const handyPostgres = createPostgres({ configPath: 'sql' });
-      const pool = new originalPg.Pool(config.withSql);
-      const handyPgWrapper = await handyPostgres.start(configSql, pool);
-
       const sourcePath = 'test/fixtures/data/films.tsv';
       const destinationPath = 'test/fixtures/data/films_out.tsv';
       fs.writeFileSync(destinationPath, ''); // Overwrite file with empty
