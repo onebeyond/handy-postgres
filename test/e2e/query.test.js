@@ -197,8 +197,8 @@ describe('Handy pg query test', () => {
       const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
       const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
       return handyPgWrapper.insert('films', [movie1, movie2])
-        .then(() => update('films', { kind: 'super-cool' }))
-        .then(() => formattedQuery('select-all', ['films']))
+        .then(() => handyPgWrapper.update('films', { kind: 'super-cool' }))
+        .then(() => handyPgWrapper.formattedQuery('select-all', ['films']))
         .then(({ rows }) => {
           expect(rows[0]).to.eql(R.merge(movie1, { kind: 'super-cool' }));
           expect(rows[1]).to.eql(R.merge(movie2, { kind: 'super-cool' }));
@@ -210,8 +210,8 @@ describe('Handy pg query test', () => {
       const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
       const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
       return handyPgWrapper.insert('films', [movie1, movie2])
-        .then(() => update('films', { kind: 'super-cool' }, { code: 'pulpf' }))
-        .then(() => formattedQuery('select-all', ['films']))
+        .then(() => handyPgWrapper.update('films', { kind: 'super-cool' }, { code: 'pulpf' }))
+        .then(() => handyPgWrapper.formattedQuery('select-all', ['films']))
         .then(({ rows }) => {
           expect(rows[0]).to.eql(movie1);
           expect(rows[1]).to.eql(R.merge(movie2, { kind: 'super-cool' }));
