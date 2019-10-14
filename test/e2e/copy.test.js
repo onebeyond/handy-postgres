@@ -68,18 +68,33 @@ describe('Handy pg copy test', () => {
     it('copies from read stream to table', async () => {
       const handyPostgres = createPostgres({ configPath: 'sql' });
       const pool = new originalPg.Pool(config.withSql);
-      const handyWrapper = await handyPostgres.start(configSql, pool);
+      const handyPgWrapper = await handyPostgres.start(configSql, pool);
 
       const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
       const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
       const readStream = fs.createReadStream('test/fixtures/data/films.tsv');
-      return handyWrapper.copyFrom(readStream, 'films')
-        .then(() => handyWrapper.formattedQuery('select-all', ['films']))
-        .then(({ rows }) => {
-          expect(rows.length).to.be(2);
-          expect(rows[0]).to.eql(movie1);
-          expect(rows[1]).to.eql(movie2);
-        });
+      return handyPgWrapper.copyFrom(readStream, 'films')
+      .then(() => handyPgWrapper.formattedQuery('select-all', ['films']))
+      .then(({ rows }) => {
+        expect(rows.length).to.be(2);
+        expect(rows[0]).to.eql(movie1);
+        expect(rows[1]).to.eql(movie2);
+      });
+    });
+
+    it('copies to write stream from table', async () => {
+      const handyPostgres = createPostgres({ configPath: 'sql' });
+      const pool = new originalPg.Pool(config.withSql);
+      const handyPgWrapper = await handyPostgres.start(configSql, pool);
+
+      const sourcePath = 'test/fixtures/data/films.tsv';
+      const destinationPath = 'test/fixtures/data/films_out.tsv';
+      fs.writeFileSync(destinationPath, ''); // Overwrite file with empty
+      const readStream = fs.createReadStream(sourcePath);
+      const writeStream = fs.createWriteStream(destinationPath);
+      return handyPgWrapper.copyFrom(readStream, 'films')
+        .then(() => handyPgWrapper.copyTo(writeStream, 'films'))
+        .then(() => expect(fs.readFileSync(sourcePath)).to.eql(fs.readFileSync(destinationPath)));
     });
   });
 });
