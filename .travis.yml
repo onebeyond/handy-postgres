@@ -21,10 +21,8 @@ services:
 before_install:
   - docker version
   - docker-compose version
-    
-before_script:
-  - npm run docker
-  - docker ps -a
 
 script:
+  - npm run docker
+  - docker ps -a
   - npm run test
