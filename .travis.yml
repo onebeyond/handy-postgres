@@ -25,4 +25,5 @@ before_install:
 script:
   - npm run docker
   - docker ps -a
+  - sleep 5
   - npm run test
