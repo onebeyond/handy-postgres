@@ -8,9 +8,10 @@ node_js:
 sudo: required
 
 services:
-- docker
+  - docker
 
-env: DOCKER_COMPOSE_VERSION: 1.23.2
+env: 
+  - DOCKER_COMPOSE_VERSION: 1.23.2
 
 before_install:
   - sudo rm /usr/local/bin/docker-compose
