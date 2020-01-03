@@ -1,30 +1,30 @@
+sudo: required
 language: node_js
-
+services:
+  - docker
 node_js:
   - v13
   - v12
   - v10
 
-sudo: required
+cache:
+  directories:
+    - ~/.npm
+    - ~/.cache
 
-services:
+  override:
+    - npm ci
+
+services: 
   - docker
-
-env: 
-  - DOCKER_COMPOSE_VERSION: 1.23.2
-
+    
 before_install:
-  - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
-  - chmod +x docker-compose
-  - sudo mv docker-compose /usr/local/bin
-
+  - docker version
+  - docker-compose version
+    
 before_script:
   - npm run docker
+  - docker ps -a
 
-after_script:
-  - docker-compose down
-install:
-  - npm install
-test:
+script:
   - npm run test
