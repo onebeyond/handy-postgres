@@ -1,0 +1,29 @@
+sudo: required
+language: node_js
+services:
+  - docker
+node_js:
+  - v13
+  - v12
+  - v10
+
+cache:
+  directories:
+    - ~/.npm
+    - ~/.cache
+
+  override:
+    - npm ci
+
+services: 
+  - docker
+    
+before_install:
+  - docker version
+  - docker-compose version
+
+script:
+  - npm run docker
+  - docker ps -a
+  - sleep 5
+  - npm run test
