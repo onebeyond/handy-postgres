@@ -1,7 +1,7 @@
 {
   "name": "handy-postgres",
-  "version": "1.2.3",
-  "description": "A handy interface for simpler postgres foo",
+  "version": "1.2.4",
+  "description": "A handy interface for simpler postgres",
   "main": "index.js",
   "scripts": {
     "test": "mocha test/e2e",
