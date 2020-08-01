@@ -81,19 +81,39 @@ describe('Handy pg query test', () => {
     .catch((err) => expect(err).to.be(null))
   );
 
-  it('inserts rows using the shorthand', () => {
+  it('inserts rows using the shorthand without returning clause', () => {
     const movie = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
     return insert('films', movie)
+    .then(({ rows }) => expect(rows).to.eql([]))
     .then(() => formattedQuery('select-all', ['films']))
     .then(({ rows }) => expect(R.head(rows)).to.eql(movie))
     .catch((err) => expect(err).to.be(null));
   });
 
-  it('updates rows using the shorthand without a where clause', () => {
+  it('inserts rows using the shorthand with returning clause set to false', () => {
+    const movie = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
+    return insert('films', movie, { _returning: false })
+    .then(({ rows }) => expect(rows).to.eql([]))
+    .then(() => formattedQuery('select-all', ['films']))
+    .then(({ rows }) => expect(R.head(rows)).to.eql(movie))
+    .catch((err) => expect(err).to.be(null));
+  });
+
+  it('inserts rows using the shorthand with returning clause set to true', () => {
+    const movie = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
+    return insert('films', movie, { _returning: true })
+    .then(({ rows }) => expect(R.head(rows)).to.eql(movie))
+    .then(() => formattedQuery('select-all', ['films']))
+    .then(({ rows }) => expect(R.head(rows)).to.eql(movie))
+    .catch((err) => expect(err).to.be(null));
+  });
+
+  it('updates rows using the shorthand with neither where clause nor returning clause', () => {
     const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
     const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
     return insert('films', [movie1, movie2])
     .then(() => update('films', { kind: 'super-cool' }))
+    .then(({ rows }) => expect(rows).to.eql([]))
     .then(() => formattedQuery('select-all', ['films']))
     .then(({ rows }) => {
       expect(rows[0]).to.eql(R.merge(movie1, { kind: 'super-cool' }));
@@ -102,14 +122,74 @@ describe('Handy pg query test', () => {
     .catch((err) => expect(err).to.be(null));
   });
 
-  it('updates rows using the shorthand with a where clause', () => {
+  it('updates rows using the shorthand with a where clause but no returning clause', () => {
     const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
     const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
     return insert('films', [movie1, movie2])
     .then(() => update('films', { kind: 'super-cool' }, { code: 'pulpf' }))
+    .then(({ rows }) => expect(rows).to.eql([]))
     .then(() => formattedQuery('select-all', ['films']))
     .then(({ rows }) => {
       expect(rows[0]).to.eql(movie1);
+      expect(rows[1]).to.eql(R.merge(movie2, { kind: 'super-cool' }));
+    })
+    .catch((err) => expect(err).to.be(null));
+  });
+
+  it('updates rows using the shorthand with a where clause and returning clause set to false', () => {
+    const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
+    const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
+    return insert('films', [movie1, movie2])
+    .then(() => update('films', { kind: 'super-cool' }, { code: 'pulpf', _returning: false }))
+    .then(({ rows }) => expect(rows).to.eql([]))
+    .then(() => formattedQuery('select-all', ['films']))
+    .then(({ rows }) => {
+      expect(rows[0]).to.eql(movie1);
+      expect(rows[1]).to.eql(R.merge(movie2, { kind: 'super-cool' }));
+    })
+    .catch((err) => expect(err).to.be(null));
+  });
+
+  it('updates rows using the shorthand with a where clause and returning clause set to true', () => {
+    const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
+    const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
+    return insert('films', [movie1, movie2])
+    .then(() => update('films', { kind: 'super-cool' }, { code: 'pulpf', _returning: true }))
+    .then(({ rows }) => expect(rows[0]).to.eql(R.merge(movie2, { kind: 'super-cool' })))
+    .then(() => formattedQuery('select-all', ['films']))
+    .then(({ rows }) => {
+      expect(rows[0]).to.eql(movie1);
+      expect(rows[1]).to.eql(R.merge(movie2, { kind: 'super-cool' }));
+    })
+    .catch((err) => expect(err).to.be(null));
+  });
+
+  it('updates rows using the shorthand without a where clause and returning clause set to false', () => {
+    const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
+    const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
+    return insert('films', [movie1, movie2])
+    .then(() => update('films', { kind: 'super-cool' }, { _returning: false }))
+    .then(({ rows }) => expect(rows).to.eql([]))
+    .then(() => formattedQuery('select-all', ['films']))
+    .then(({ rows }) => {
+      expect(rows[0]).to.eql(R.merge(movie1, { kind: 'super-cool' }));
+      expect(rows[1]).to.eql(R.merge(movie2, { kind: 'super-cool' }));
+    })
+    .catch((err) => expect(err).to.be(null));
+  });
+
+  it('updates rows using the shorthand without a where clause and returning clause set to true', () => {
+    const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
+    const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
+    return insert('films', [movie1, movie2])
+    .then(() => update('films', { kind: 'super-cool' }, { _returning: true }))
+    .then(({ rows }) => {
+      expect(rows[0]).to.eql(R.merge(movie1, { kind: 'super-cool' }));
+      expect(rows[1]).to.eql(R.merge(movie2, { kind: 'super-cool' }));
+    })
+    .then(() => formattedQuery('select-all', ['films']))
+    .then(({ rows }) => {
+      expect(rows[0]).to.eql(R.merge(movie1, { kind: 'super-cool' }));
       expect(rows[1]).to.eql(R.merge(movie2, { kind: 'super-cool' }));
     })
     .catch((err) => expect(err).to.be(null));
