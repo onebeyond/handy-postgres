@@ -1,0 +1,1 @@
+UPDATE %s SET %s %s RETURNING *
