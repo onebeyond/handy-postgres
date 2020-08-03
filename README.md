@@ -51,8 +51,8 @@ After creating a Handy PG component, the following methods will be available:
 | streamQuery | Same as `query`, but returns a stream ('data', 'error', 'end'). Multiple queries not possible (throws error). | `(stream) => {}` |
 | formattedQuery | Execute a formatted query using shorthands `SELECT %L::INT AS %I` | `(result) => {}` |
 | formattedStreamQuery | Same as formattedQuery but returns a stream ('data', 'error', 'end'). Multiple queries not possible (throws error). | `(stream) => {}` |
-| insert | Insert data `(table, data, options)` (object `options` is optional. It accepts the boolean property `_returning` to retrieve inserted data) | `() => {}` |
-| update | Update data `(table, update, options)` (object `options` is optional. It accepts where conditions and the `_returning` property as in `insert` )| `() => {}` |
+| insert | Insert data `(table, data, options)` (object `options` is optional. It accepts the boolean property `returning` to retrieve inserted data) | `() => {}` |
+| update | Update data `(table, update, where, options)` (objects `where` and `options` are optional. `where` accepts where conditions, `options` is analogous to `insert` usage)| `() => {}` |
 | schema | Sets a schema and returns the query operations to use with that schema `(schema)`| `({ query, formattedQuery, insert, update }) => {}` |
 | explain | Execute an explain plan for an unformatted query |
 | formattedExplain | Execute an explain plan for a formatted query |
