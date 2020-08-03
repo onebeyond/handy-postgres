@@ -92,7 +92,7 @@ describe('Handy pg query test', () => {
 
   it('inserts rows using the shorthand with returning clause set to false', () => {
     const movie = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
-    return insert('films', movie, { _returning: false })
+    return insert('films', movie, { returning: false })
     .then(({ rows }) => expect(rows).to.eql([]))
     .then(() => formattedQuery('select-all', ['films']))
     .then(({ rows }) => expect(R.head(rows)).to.eql(movie))
@@ -101,7 +101,7 @@ describe('Handy pg query test', () => {
 
   it('inserts rows using the shorthand with returning clause set to true', () => {
     const movie = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
-    return insert('films', movie, { _returning: true })
+    return insert('films', movie, { returning: true })
     .then(({ rows }) => expect(R.head(rows)).to.eql(movie))
     .then(() => formattedQuery('select-all', ['films']))
     .then(({ rows }) => expect(R.head(rows)).to.eql(movie))
@@ -140,7 +140,7 @@ describe('Handy pg query test', () => {
     const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
     const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
     return insert('films', [movie1, movie2])
-    .then(() => update('films', { kind: 'super-cool' }, { code: 'pulpf', _returning: false }))
+    .then(() => update('films', { kind: 'super-cool' }, { code: 'pulpf'}, { returning: false }))
     .then(({ rows }) => expect(rows).to.eql([]))
     .then(() => formattedQuery('select-all', ['films']))
     .then(({ rows }) => {
@@ -154,7 +154,7 @@ describe('Handy pg query test', () => {
     const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
     const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
     return insert('films', [movie1, movie2])
-    .then(() => update('films', { kind: 'super-cool' }, { code: 'pulpf', _returning: true }))
+    .then(() => update('films', { kind: 'super-cool' }, { code: 'pulpf' }, { returning: true }))
     .then(({ rows }) => expect(rows[0]).to.eql(R.merge(movie2, { kind: 'super-cool' })))
     .then(() => formattedQuery('select-all', ['films']))
     .then(({ rows }) => {
@@ -168,7 +168,7 @@ describe('Handy pg query test', () => {
     const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
     const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
     return insert('films', [movie1, movie2])
-    .then(() => update('films', { kind: 'super-cool' }, { _returning: false }))
+    .then(() => update('films', { kind: 'super-cool' }, null, { returning: false }))
     .then(({ rows }) => expect(rows).to.eql([]))
     .then(() => formattedQuery('select-all', ['films']))
     .then(({ rows }) => {
@@ -182,7 +182,7 @@ describe('Handy pg query test', () => {
     const movie1 = { code: 'kurtz', title: 'Apocalypse Now', dateProd: new Date('1979-08-15'), kind: 'drama', len: 153 };
     const movie2 = { code: 'pulpf', title: 'Pulp Fiction', kind: 'cult', dateProd: null, len: 178 };
     return insert('films', [movie1, movie2])
-    .then(() => update('films', { kind: 'super-cool' }, { _returning: true }))
+    .then(() => update('films', { kind: 'super-cool' }, null, { returning: true }))
     .then(({ rows }) => {
       expect(rows[0]).to.eql(R.merge(movie1, { kind: 'super-cool' }));
       expect(rows[1]).to.eql(R.merge(movie2, { kind: 'super-cool' }));
