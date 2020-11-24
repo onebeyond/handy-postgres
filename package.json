@@ -35,7 +35,7 @@
     "pg-query-stream": "^2.1.2",
     "ramda": "^0.26.1",
     "sql-params-format": "^2.0.0",
-    "snyk": "^1.316.1"
+    "snyk": "^1.425.4"
   },
   "devDependencies": {
     "eslint": "^6.8.0",
