@@ -1,6 +1,14 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.13.5
-ignore: {}
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-JS-GLOBPARENT-1016905:
+    - snyk > snyk-nodejs-lockfile-parser > @yarnpkg/core > @yarnpkg/shell > fast-glob > glob-parent:
+        reason: No solution found
+        expires: '2021-05-07T16:15:46.858Z'
+    - snyk > snyk-nodejs-lockfile-parser > @yarnpkg/core > globby > fast-glob > glob-parent:
+        reason: No solution found
+        expires: '2021-05-07T16:15:46.858Z'
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   SNYK-JS-LODASH-567746:
