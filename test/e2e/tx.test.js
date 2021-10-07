@@ -6,7 +6,7 @@ const config = {
     user: 'postgres',
     database: 'postgres',
     password: 'password',
-    host: 'localhost',
+    host: process.env.POSTGRES_HOST || 'localhost',
     port: 5432,
     max: 10,
     idleTimeoutMillis: 30000,
