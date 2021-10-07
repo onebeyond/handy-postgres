@@ -12,9 +12,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x, 14.x]
+    # strategy:
+    #   matrix:
+    #     node-version: [10.x, 12.x, 14.x]
     services:
       # Label used to access the service container
       postgres:
@@ -31,6 +31,9 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
@@ -42,4 +45,4 @@ jobs:
       - run: npm test
         env:
           # The hostname used to communicate with the PostgreSQL service container
-          POSTGRES_HOST: 0.0.0.0
+          POSTGRES_HOST: localhost
