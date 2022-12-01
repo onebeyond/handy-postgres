@@ -34,7 +34,7 @@
     "pg-format": "^1.0.4",
     "pg-query-stream": "^4.0.0",
     "ramda": "^0.27.1",
-    "snyk": "^1.528.0",
+    "snyk": "^1.1064.0",
     "sql-params-format": "^2.0.0"
   },
   "devDependencies": {
