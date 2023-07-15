@@ -1,3 +1,6 @@
+[![Maintainability](https://api.codeclimate.com/v1/badges/80036456f9bda3ae0316/maintainability)](https://codeclimate.com/github/onebeyond/handy-postgres/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/80036456f9bda3ae0316/test_coverage)](https://codeclimate.com/github/onebeyond/handy-postgres/test_coverage)
+
 # handy-postgres
 
 A handy API for Postgres which uses promises and [this super library](https://github.com/brianc/node-postgres), which also uses pool handling.
