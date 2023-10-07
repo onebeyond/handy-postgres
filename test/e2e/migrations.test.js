@@ -1,5 +1,6 @@
 const R = require('ramda');
 const expect = require('expect.js');
+const originalPg = require('pg');
 const createPostgres = require('../..');
 
 const withSql = {
@@ -92,5 +93,50 @@ describe('Handy pg migrations', () => {
     const { query } = await migratingPg.start(config);
     await query('SELECT * FROM handy_test_migrate');
     await query('SELECT * FROM handy_test_migrate');
+  });
+
+  describe('Using an external pool', () => {
+    const sqlPath = config.withSql.sql;
+    const configSql = {
+      sql: {
+        sql: sqlPath
+      },
+    };
+
+    it('initialises migrations as part of a system configuration', async () => {
+      const handyPostgres = createPostgres({ configPath: 'withMigrations' });
+      const pool = new originalPg.Pool(config.withSql);
+      const handyPgWrapper = await handyPostgres.start(config, pool);
+      const { rows } = await handyPgWrapper.query('SELECT * FROM migrations');
+      expect(rows.length).to.be.greaterThan(0);
+    });
+
+    it('Uses migration credentials if supplied', async () => {
+      const handyPostgres = createPostgres({ configPath: 'withMigrationsCredentials' });
+      const pool = new originalPg.Pool(config.withSql);
+      const handyPgWrapper = await handyPostgres.start(config, pool);
+      const { rows } = await handyPgWrapper.query("SELECT tableowner FROM pg_tables WHERE tablename = 'migrations'");
+      expect(rows.length).to.be(1);
+      expect(rows[0].tableowner).to.be('migrations');
+    });
+
+    it('runs all migration steps', async () => {
+      const handyPostgres = createPostgres({ configPath: 'withMigrations' });
+      const pool = new originalPg.Pool(config.withSql);
+      const handyPgWrapper = await handyPostgres.start(config, pool);
+      const { rows } = await handyPgWrapper.query('SELECT * FROM handy_test_migrate ORDER BY id')
+      expect(rows.length).to.be(3);
+      expect(rows[0].id).to.be(1);
+      expect(rows[1].name).to.be('two');
+      expect(rows[2].id).to.be(3);
+    });
+
+    it('runs migrations from multiple directories when provided', async () => {
+      const handyPostgres = createPostgres({ configPath: 'withMultipleMigrations' });
+      const pool = new originalPg.Pool(config.withSql);
+      const handyPgWrapper = await handyPostgres.start(config, pool);
+      await handyPgWrapper.query('SELECT * FROM handy_test_migrate');
+      await handyPgWrapper.query('SELECT * FROM handy_test_migrate');
+    });
   });
 });

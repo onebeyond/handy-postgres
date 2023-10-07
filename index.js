@@ -18,22 +18,20 @@ const Pg = ({ pg = require('pg'), configPath = 'pg', logger = console }) => {
     return initPool(logger)(pg, config);
   };
 
-  const start = (config) =>
+  const start = (config, defaultPool) =>
     Promise.resolve()
       .then(() => {
         const pickedConfig = dotPath(configPath, config);
         const sqlPath = pickedConfig && pickedConfig.sql;
         const isolationLevel = pickedConfig && pickedConfig.isolationLevel;
         queryRunner = createRunner(sqlPath, format, isolationLevel);
-        pool = createPool(pickedConfig);
+        pool = defaultPool || createPool(pickedConfig);
+        const promisifiedPool = Promise.promisifyAll(pool);
+        pool = pool.getConnection ? pool : Object.assign(pool, { getConnection: () => promisifiedPool.connectAsync().disposer((client) => client.release()) });
         api = queryRunner(pool);
-        return Promise.using(pool.getConnection(), () => {})
-          .then(() => {
-            if (pickedConfig.migrations) {
-              return migrate(logger)(pickedConfig);
-            }
-            return null;
-          });
+        return (pickedConfig && pickedConfig.migrations)
+          ? Promise.using(pool.getConnection(), () => {}).then(() => migrate(logger)(pickedConfig))
+          : Promise.resolve();
       })
       .then(() => api);
 
